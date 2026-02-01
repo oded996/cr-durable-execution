@@ -12,7 +12,7 @@ A lightweight JavaScript library that brings durable execution capabilities to G
 ## Installation
 
 ```bash
-npm install @google-cloud/durable-execution
+npm install https://github.com/oded996/cr-durable-execution
 ```
 
 ## How it Works
@@ -28,7 +28,7 @@ The library uses a **rehydration** pattern. When `ctx.sleep()` is called for a l
 ### 1. Define your Workflow
 
 ```typescript
-import { withDurableExecution, DurableContext } from '@google-cloud/durable-execution';
+import { withDurableExecution, DurableContext } from 'cr-durable-execution';
 
 const workflow = async (event: any, ctx: DurableContext) => {
   const { userId } = event;
