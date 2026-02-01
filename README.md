@@ -99,6 +99,10 @@ The library is designed to work with **zero configuration** on Cloud Run. It aut
 - `SERVICE_ACCOUNT_EMAIL`: Manual override for the service account used for resumption.
 - `DURABLE_EXECUTION_QUEUE`: The Cloud Tasks queue to use (defaults to `default`). 
 
+## Limitations
+
+- **Payload Size**: Cloud Tasks has a **100KB limit** for the total request body. Since the library stores the results of all completed steps in this payload, workflows with very large step results or an extremely high number of steps may hit this limit.
+
 ## License
 
 ISC
