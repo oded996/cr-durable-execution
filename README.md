@@ -11,6 +11,8 @@ A lightweight JavaScript library that brings durable execution capabilities to G
 
 ## Installation
 
+> **Important**: This library must be installed as a production dependency (not a devDependency) for it to be available in your Cloud Run container.
+
 ```bash
 npm install https://github.com/oded996/cr-durable-execution
 ```
@@ -22,6 +24,26 @@ The library uses a **rehydration** pattern. When `ctx.sleep()` is called for a l
 2. A Cloud Task is scheduled to POST back to the same function after the sleep duration.
 3. The current request terminates gracefully.
 4. When the Cloud Task triggers, the function runs again, "fast-forwarding" through already completed steps using the saved history.
+
+## Requirements & Permissions
+
+### 1. Enable APIs
+Ensure the Cloud Tasks API is enabled in your project.
+
+### 2. IAM Permissions
+The Cloud Run service account needs permission to create tasks and act as itself to sign the resumption tokens. Run these commands (replacing the placeholders):
+
+```bash
+# Grant Cloud Tasks Enqueuer
+gcloud projects add-iam-policy-binding [PROJECT_ID] \
+  --member="serviceAccount:[SERVICE_ACCOUNT_EMAIL]" \
+  --role="roles/cloudtasks.enqueuer"
+
+# Grant Service Account User (to allow OIDC token generation)
+gcloud iam service-accounts add-iam-policy-binding [SERVICE_ACCOUNT_EMAIL] \
+  --member="serviceAccount:[SERVICE_ACCOUNT_EMAIL]" \
+  --role="roles/iam.serviceAccountUser"
+```
 
 ## Usage Example
 
@@ -63,7 +85,7 @@ Deploy using the standard `gcloud` command.
 gcloud run deploy my-service \
   --source . \
   --function myDurableFunction \
-  --set-env-vars GOOGLE_CLOUD_PROJECT=[PROJECT_ID],FUNCTION_REGION=[REGION]
+  --set-env-vars GOOGLE_CLOUD_PROJECT=[PROJECT_ID]
 ```
 
 ## Configuration
@@ -72,15 +94,10 @@ gcloud run deploy my-service \
 - `GOOGLE_CLOUD_PROJECT`: Your GCP Project ID. Required for Cloud Tasks integration.
 
 ### Optional Environment Variables
+- `FUNCTION_REGION`: The region where your service is deployed. **Automatically detected** on Cloud Run if not provided.
 - `K_SERVICE_URL`: Manual override for the public URL of your Cloud Run service. Automatically detected from request headers if not set.
-- `FUNCTION_REGION`: The region where your service is deployed (e.g., `us-central1`). Defaults to `us-central1`.
 - `SERVICE_ACCOUNT_EMAIL`: The service account used to sign OIDC tokens for resumption calls. **Automatically detected** on Cloud Run if not provided.
 - `DURABLE_EXECUTION_QUEUE`: The Cloud Tasks queue to use. Defaults to `default`. 
-
-## Requirements
-
-- **Cloud Tasks**: The "default" queue must exist in your project, or you must specify a custom one.
-- **IAM Permissions**: The Cloud Run service account needs `cloudtasks.tasks.create` and `iam.serviceAccounts.actAs` permissions.
 
 ## License
 

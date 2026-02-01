@@ -13,6 +13,7 @@ export declare class DurableContext {
     private sleepCounter;
     private stepCounter;
     private serviceUrl?;
+    private seenSteps;
     constructor(state?: DurableState, event?: any, serviceUrl?: string);
     step<T>(name: string, action: () => Promise<T>): Promise<T>;
     sleep(seconds: number): Promise<void>;

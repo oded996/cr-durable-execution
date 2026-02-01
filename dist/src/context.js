@@ -49,6 +49,7 @@ class DurableContext {
         this.isResuming = false;
         this.sleepCounter = 0;
         this.stepCounter = 0;
+        this.seenSteps = new Set();
         if (state) {
             this.history = state.history || {};
             this.isResuming = state.isResuming || false;
@@ -59,6 +60,10 @@ class DurableContext {
     }
     async step(name, action) {
         const id = `step-${name}`;
+        if (this.seenSteps.has(id)) {
+            throw new Error(`Duplicate step name detected: "${name}". Each step within a workflow must have a unique name.`);
+        }
+        this.seenSteps.add(id);
         if (id in this.history) {
             return this.history[id];
         }
@@ -84,7 +89,18 @@ class DurableContext {
     }
     async scheduleResume(seconds) {
         const project = process.env.GOOGLE_CLOUD_PROJECT;
-        const location = process.env.FUNCTION_REGION || process.env.K_LOCATION || 'us-central1';
+        let location = process.env.FUNCTION_REGION;
+        if (!location) {
+            try {
+                const region = await metadata.instance('region');
+                if (typeof region === 'string') {
+                    location = region.split('/').pop();
+                }
+            }
+            catch (e) {
+                location = 'us-central1';
+            }
+        }
         const queue = process.env.DURABLE_EXECUTION_QUEUE || 'default';
         const url = process.env.K_SERVICE_URL || this.serviceUrl;
         if (!url) {
@@ -93,7 +109,7 @@ class DurableContext {
         if (!project) {
             throw new Error('GOOGLE_CLOUD_PROJECT environment variable is not set.');
         }
-        const parent = this.tasksClient.queuePath(project, location, queue);
+        const parent = this.tasksClient.queuePath(project, location || 'us-central1', queue);
         const payload = {
             durableContext: {
                 history: this.history,

@@ -1,8 +1,7 @@
 import { Request, Response } from 'express';
 import { DurableContext, DurableSleepInterrupt, DurableState } from './context';
 
-export { DurableContext };
-
+export { DurableContext, DurableSleepInterrupt, DurableState };
 export type DurableWorkflow = (event: any, ctx: DurableContext) => Promise<any>;
 
 export function withDurableExecution(workflow: DurableWorkflow) {

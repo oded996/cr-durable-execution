@@ -1,9 +1,10 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.DurableContext = void 0;
+exports.DurableSleepInterrupt = exports.DurableContext = void 0;
 exports.withDurableExecution = withDurableExecution;
 const context_1 = require("./context");
 Object.defineProperty(exports, "DurableContext", { enumerable: true, get: function () { return context_1.DurableContext; } });
+Object.defineProperty(exports, "DurableSleepInterrupt", { enumerable: true, get: function () { return context_1.DurableSleepInterrupt; } });
 function withDurableExecution(workflow) {
     return async (req, res) => {
         let state;
