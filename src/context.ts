@@ -89,7 +89,7 @@ export class DurableContext {
       httpRequest: {
         httpMethod: 'POST' as const,
         url,
-        body: Buffer.from(JSON.stringify(payload)).toString('base64'),
+        body: Buffer.from(JSON.stringify(payload)),
         headers: {
           'Content-Type': 'application/json',
         },
