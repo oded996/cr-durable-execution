@@ -88,7 +88,15 @@ class DurableContext {
         throw new DurableSleepInterrupt();
     }
     async scheduleResume(seconds) {
-        const project = process.env.GOOGLE_CLOUD_PROJECT;
+        let project = process.env.GOOGLE_CLOUD_PROJECT;
+        if (!project) {
+            try {
+                project = await metadata.project('project-id');
+            }
+            catch (e) {
+                // Fallback or error handled below
+            }
+        }
         let location = process.env.FUNCTION_REGION;
         if (!location) {
             try {
@@ -107,7 +115,7 @@ class DurableContext {
             throw new Error('Service URL could not be determined. Please set K_SERVICE_URL environment variable.');
         }
         if (!project) {
-            throw new Error('GOOGLE_CLOUD_PROJECT environment variable is not set.');
+            throw new Error('GOOGLE_CLOUD_PROJECT environment variable is not set and could not be auto-detected.');
         }
         const parent = this.tasksClient.queuePath(project, location || 'us-central1', queue);
         const payload = {

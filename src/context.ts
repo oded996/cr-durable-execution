@@ -70,7 +70,15 @@ export class DurableContext {
   }
 
   private async scheduleResume(seconds: number) {
-    const project = process.env.GOOGLE_CLOUD_PROJECT;
+    let project = process.env.GOOGLE_CLOUD_PROJECT;
+    if (!project) {
+      try {
+        project = await metadata.project('project-id');
+      } catch (e) {
+        // Fallback or error handled below
+      }
+    }
+
     let location = process.env.FUNCTION_REGION;
     
     if (!location) {
@@ -92,7 +100,7 @@ export class DurableContext {
     }
 
     if (!project) {
-      throw new Error('GOOGLE_CLOUD_PROJECT environment variable is not set.');
+      throw new Error('GOOGLE_CLOUD_PROJECT environment variable is not set and could not be auto-detected.');
     }
 
     const parent = this.tasksClient.queuePath(project, location || 'us-central1', queue);
