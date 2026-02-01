@@ -70,7 +70,9 @@ The library uses the following environment variables:
 
 - `GOOGLE_CLOUD_PROJECT`: Your GCP Project ID.
 - `K_SERVICE_URL`: The public URL of your Cloud Run service (required for resumption).
-- `DURABLE_EXECUTION_QUEUE`: (Optional) The Cloud Tasks queue to use. Defaults to `default`.
+- `DURABLE_EXECUTION_QUEUE`: (Optional) The Cloud Tasks queue to use. Defaults to `default`. 
+  - To use a custom queue, create it first: `gcloud tasks queues create my-custom-queue`
+  - Then provide it during deployment: `--set-env-vars DURABLE_EXECUTION_QUEUE=my-custom-queue`
 - `SERVICE_ACCOUNT_EMAIL`: (Optional) The service account used to sign OIDC tokens for resumption calls.
 
 ## Requirements
