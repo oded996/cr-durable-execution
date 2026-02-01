@@ -19,13 +19,15 @@ export class DurableContext {
   private originalEvent: any;
   private sleepCounter: number = 0;
   private stepCounter: number = 0;
+  private serviceUrl?: string;
 
-  constructor(state?: DurableState, event?: any) {
+  constructor(state?: DurableState, event?: any, serviceUrl?: string) {
     if (state) {
       this.history = state.history || {};
       this.isResuming = state.isResuming || false;
     }
     this.originalEvent = event;
+    this.serviceUrl = serviceUrl;
     this.tasksClient = new CloudTasksClient();
   }
 
@@ -62,10 +64,10 @@ export class DurableContext {
     const project = process.env.GOOGLE_CLOUD_PROJECT;
     const location = process.env.FUNCTION_REGION || 'us-central1';
     const queue = process.env.DURABLE_EXECUTION_QUEUE || 'default';
-    const url = process.env.K_SERVICE_URL;
+    const url = process.env.K_SERVICE_URL || this.serviceUrl;
 
     if (!url) {
-      throw new Error('K_SERVICE_URL environment variable is not set. Cannot schedule resume.');
+      throw new Error('Service URL could not be determined. Please set K_SERVICE_URL environment variable.');
     }
 
     const parent = this.tasksClient.queuePath(project!, location, queue);

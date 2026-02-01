@@ -15,7 +15,13 @@ export function withDurableExecution(workflow: DurableWorkflow) {
     }
 
     const event = req.body?.originalEvent || req.body;
-    const ctx = new DurableContext(state, event);
+    
+    // Detect service URL from headers if not provided via env
+    const protocol = req.headers['x-forwarded-proto'] || 'https';
+    const host = req.headers['host'];
+    const serviceUrl = host ? `${protocol}://${host}` : undefined;
+
+    const ctx = new DurableContext(state, event, serviceUrl);
 
     try {
       const result = await workflow(event, ctx);

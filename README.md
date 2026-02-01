@@ -55,13 +55,12 @@ export const myDurableFunction = withDurableExecution(workflow);
 
 ### 2. Deploy to Cloud Run
 
-Deploy using the standard `gcloud` command. Ensure you provide the service URL so the library knows where to resume.
+Deploy using the standard `gcloud` command. The library automatically detects your service URL from incoming requests, so no manual URL configuration is required for most use cases.
 
 ```bash
-gcloud run deploy my-service 
-  --source . 
-  --function myDurableFunction 
-  --set-env-vars K_SERVICE_URL=https://[YOUR-SERVICE-URL]
+gcloud run deploy my-service \
+  --source . \
+  --function myDurableFunction
 ```
 
 ## Configuration
@@ -69,7 +68,7 @@ gcloud run deploy my-service
 The library uses the following environment variables:
 
 - `GOOGLE_CLOUD_PROJECT`: Your GCP Project ID.
-- `K_SERVICE_URL`: The public URL of your Cloud Run service (required for resumption).
+- `K_SERVICE_URL`: (Optional) Manual override for the public URL of your Cloud Run service.
 - `DURABLE_EXECUTION_QUEUE`: (Optional) The Cloud Tasks queue to use. Defaults to `default`. 
   - To use a custom queue, create it first: `gcloud tasks queues create my-custom-queue`
   - Then provide it during deployment: `--set-env-vars DURABLE_EXECUTION_QUEUE=my-custom-queue`
