@@ -30,7 +30,14 @@ The library uses a **rehydration** pattern. When `ctx.sleep()` is called for a l
 ### 1. Enable APIs
 Ensure the Cloud Tasks API is enabled in your project.
 
-### 2. IAM Permissions
+### 2. Create Cloud Tasks Queue
+The library defaults to a queue named `default`. Create it if it doesn't exist:
+
+```bash
+gcloud tasks queues create default
+```
+
+### 3. IAM Permissions
 The Cloud Run service account needs permission to create tasks and act as itself to sign the resumption tokens. Run these commands (replacing the placeholders):
 
 ```bash
@@ -47,7 +54,7 @@ gcloud iam service-accounts add-iam-policy-binding [SERVICE_ACCOUNT_EMAIL] \
 
 ## Usage Example
 
-### 1. Define your Workflow
+### 1. Define your Workflow (TypeScript)
 
 ```typescript
 import { withDurableExecution, DurableContext } from 'cr-durable-execution';
@@ -75,17 +82,47 @@ const workflow = async (event: any, ctx: DurableContext) => {
 export const myDurableFunction = withDurableExecution(workflow);
 ```
 
-### 2. Deploy to Cloud Run
+### 2. TypeScript Configuration
+
+Ensure your `tsconfig.json` is configured to output to a directory (e.g., `dist`) that Cloud Run can find:
+
+```json
+{
+  "compilerOptions": {
+    "target": "ES2020",
+    "module": "CommonJS",
+    "outDir": "./dist",
+    "rootDir": "./src",
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true
+  }
+}
+```
+
+### 3. Deploy to Cloud Run
 
 Deploy using the standard `gcloud` command. 
 
-> **Note on Service URL**: The library attempts to automatically detect your service URL from incoming requests. If this fails, or for your very first execution, you may need to set `K_SERVICE_URL`.
+> **Important Deployment Note**: When using `--function`, Cloud Run buildpacks look at the `main` field in your `package.json`. It must point to the **compiled JavaScript file**, not the TypeScript source.
 
+**package.json**
+```json
+{
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "tsc",
+    "gcp-build": "npm run build"
+  }
+}
+```
+
+**gcloud command**
 ```bash
+# The library automatically detects Project ID, Region, and URL.
 gcloud run deploy my-service \
   --source . \
-  --function myDurableFunction \
-  --set-env-vars GOOGLE_CLOUD_PROJECT=[PROJECT_ID]
+  --function myDurableFunction
 ```
 
 ## Configuration
