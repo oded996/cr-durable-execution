@@ -84,7 +84,7 @@ export const myDurableFunction = withDurableExecution(workflow);
 
 ### 2. TypeScript Configuration
 
-Ensure your `tsconfig.json` is configured to output to a directory (e.g., `dist`) that Cloud Run can find:
+Ensure your `tsconfig.json` is configured to output to a directory (e.g., `dist`) that Cloud Run can find. If you don't use a `src/` folder, remove the `rootDir` setting or change it to `./`.
 
 ```json
 {
@@ -92,7 +92,7 @@ Ensure your `tsconfig.json` is configured to output to a directory (e.g., `dist`
     "target": "ES2020",
     "module": "CommonJS",
     "outDir": "./dist",
-    "rootDir": "./src",
+    "rootDir": "./src", // Change to "./" if you don't use a src/ folder
     "strict": true,
     "esModuleInterop": true,
     "skipLibCheck": true
