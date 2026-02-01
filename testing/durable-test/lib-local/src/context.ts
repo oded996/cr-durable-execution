@@ -56,14 +56,13 @@ export class DurableContext {
 
     // Long sleep: schedule a task and interrupt
     this.history[id] = true;
-    console.log(`Suspending execution for ${seconds}s...`);
     await this.scheduleResume(seconds);
     throw new DurableSleepInterrupt();
   }
 
   private async scheduleResume(seconds: number) {
     const project = process.env.GOOGLE_CLOUD_PROJECT;
-    const location = process.env.FUNCTION_REGION || process.env.K_LOCATION || 'us-central1';
+    const location = process.env.FUNCTION_REGION || 'us-central1';
     const queue = process.env.DURABLE_EXECUTION_QUEUE || 'default';
     const url = process.env.K_SERVICE_URL || this.serviceUrl;
 
@@ -71,11 +70,7 @@ export class DurableContext {
       throw new Error('Service URL could not be determined. Please set K_SERVICE_URL environment variable.');
     }
 
-    if (!project) {
-      throw new Error('GOOGLE_CLOUD_PROJECT environment variable is not set.');
-    }
-
-    const parent = this.tasksClient.queuePath(project, location, queue);
+    const parent = this.tasksClient.queuePath(project!, location, queue);
     
     const payload = {
       durableContext: {
@@ -102,6 +97,14 @@ export class DurableContext {
     if (process.env.SERVICE_ACCOUNT_EMAIL) {
       task.httpRequest.oidcToken = {
         serviceAccountEmail: process.env.SERVICE_ACCOUNT_EMAIL,
+      };
+    } else {
+      // If we don't have an email, we still usually need an oidcToken to call a protected Cloud Run service.
+      // We can try to provide an empty object or just the audience if we can determine it.
+      // For now, let's assume if it's not provided, the user might be using a public service or handles auth differently.
+      // But idiomatic Cloud Run to Cloud Run usually needs the token.
+      task.httpRequest.oidcToken = {
+        serviceAccountEmail: '', // Using default service account
       };
     }
 

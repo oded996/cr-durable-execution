@@ -55,29 +55,24 @@ export const myDurableFunction = withDurableExecution(workflow);
 
 ### 2. Deploy to Cloud Run
 
-Deploy using the standard `gcloud` command. 
-
-> **Note on Service URL**: The library attempts to automatically detect your service URL from incoming requests. If this fails, or for your very first execution, you may need to set `K_SERVICE_URL`.
+Deploy using the standard `gcloud` command. The library automatically detects your service URL from incoming requests, so no manual URL configuration is required for most use cases.
 
 ```bash
 gcloud run deploy my-service \
   --source . \
-  --function myDurableFunction \
-  --set-env-vars GOOGLE_CLOUD_PROJECT=[PROJECT_ID],FUNCTION_REGION=[REGION]
+  --function myDurableFunction
 ```
 
 ## Configuration
 
-### Mandatory Environment Variables
-- `GOOGLE_CLOUD_PROJECT`: Your GCP Project ID.
-- `FUNCTION_REGION`: The region where your service is deployed (e.g., `us-central1`).
+The library uses the following environment variables:
 
-### Optional Environment Variables
-- `K_SERVICE_URL`: Manual override for the public URL of your Cloud Run service.
-- `DURABLE_EXECUTION_QUEUE`: The Cloud Tasks queue to use. Defaults to `default`. 
+- `GOOGLE_CLOUD_PROJECT`: Your GCP Project ID.
+- `K_SERVICE_URL`: (Optional) Manual override for the public URL of your Cloud Run service.
+- `DURABLE_EXECUTION_QUEUE`: (Optional) The Cloud Tasks queue to use. Defaults to `default`. 
   - To use a custom queue, create it first: `gcloud tasks queues create my-custom-queue`
   - Then provide it during deployment: `--set-env-vars DURABLE_EXECUTION_QUEUE=my-custom-queue`
-- `SERVICE_ACCOUNT_EMAIL`: The service account used to sign OIDC tokens for resumption calls. Required if your Cloud Run service is "Internal" or "Requires Authentication".
+- `SERVICE_ACCOUNT_EMAIL`: (Optional) The service account used to sign OIDC tokens for resumption calls.
 
 ## Requirements
 
