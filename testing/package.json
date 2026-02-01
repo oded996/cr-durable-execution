@@ -5,16 +5,21 @@
   "main": "dist/index.js",
   "scripts": {
     "build": "tsc",
+    "gcp-build": "npm run build",
     "start": "node dist/index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "type": "module",
+  "type": "commonjs",
   "dependencies": {
-    "@types/node": "^25.1.0",
     "cr-durable-execution": "github:oded996/cr-durable-execution",
+    "express": "^5.2.1"
+  },
+  "devDependencies": {
+    "@types/express": "^5.0.6",
+    "@types/node": "^25.1.0",
     "ts-node": "^10.9.2",
     "typescript": "^5.9.3"
   }

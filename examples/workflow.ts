@@ -12,23 +12,24 @@ const sendEmail = async (email: string, message: string) => {
 };
 
 const workflow = async (event: any, ctx: DurableContext) => {
-  const payload = event;
+  const { userId } = event;
 
-  // Atomic step: executed once, result persisted
+  // 1. This step runs once and its result is saved
   const profile = await ctx.step("fetch-profile", async () => {
-    return await fetchProfile(payload.userId);
+    return await fetchProfile(userId);
   });
 
-  // Suspend execution for 40 seconds
+  // 2. The function stops here and resumes in 24 hours
+  // You don't pay for the 24 hours of idle time!
   console.log("Entering sleep...");
-  await ctx.sleep(40);
+  await ctx.sleep(86400); 
 
-  // Resume with state restored
+  // 3. Execution resumes here with 'profile' restored
   await ctx.step("send-follow-up", async () => {
-    await sendEmail(profile.email, "How was your day?");
+    await sendEmail(profile.email, "Welcome back!");
   });
 
-  return { finished: true };
+  return { success: true };
 };
 
-export const durableEventFunction = withDurableExecution(workflow);
+export const myDurableFunction = withDurableExecution(workflow);

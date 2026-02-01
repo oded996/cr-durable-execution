@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.durableEventFunction = void 0;
+exports.myDurableFunction = void 0;
 const index_1 = require("../src/index");
 // Mock functions to simulate external calls
 const fetchProfile = async (userId) => {
@@ -12,19 +12,20 @@ const sendEmail = async (email, message) => {
     return { success: true };
 };
 const workflow = async (event, ctx) => {
-    const payload = event;
-    // Atomic step: executed once, result persisted
+    const { userId } = event;
+    // 1. This step runs once and its result is saved
     const profile = await ctx.step("fetch-profile", async () => {
-        return await fetchProfile(payload.userId);
+        return await fetchProfile(userId);
     });
-    // Suspend execution for 40 seconds
+    // 2. The function stops here and resumes in 24 hours
+    // You don't pay for the 24 hours of idle time!
     console.log("Entering sleep...");
-    await ctx.sleep(40);
-    // Resume with state restored
+    await ctx.sleep(86400);
+    // 3. Execution resumes here with 'profile' restored
     await ctx.step("send-follow-up", async () => {
-        await sendEmail(profile.email, "How was your day?");
+        await sendEmail(profile.email, "Welcome back!");
     });
-    return { finished: true };
+    return { success: true };
 };
-exports.durableEventFunction = (0, index_1.withDurableExecution)(workflow);
+exports.myDurableFunction = (0, index_1.withDurableExecution)(workflow);
 //# sourceMappingURL=workflow.js.map
