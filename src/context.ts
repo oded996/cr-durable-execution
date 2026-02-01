@@ -1,4 +1,5 @@
 import { CloudTasksClient } from '@google-cloud/tasks';
+import * as metadata from 'gcp-metadata';
 
 export class DurableSleepInterrupt extends Error {
   constructor() {
@@ -99,9 +100,18 @@ export class DurableContext {
       },
     };
 
-    if (process.env.SERVICE_ACCOUNT_EMAIL) {
+    let saEmail = process.env.SERVICE_ACCOUNT_EMAIL;
+    if (!saEmail) {
+      try {
+        saEmail = await metadata.instance('service-accounts/default/email');
+      } catch (e) {
+        console.warn('Could not auto-detect service account email from metadata server.');
+      }
+    }
+
+    if (saEmail) {
       task.httpRequest.oidcToken = {
-        serviceAccountEmail: process.env.SERVICE_ACCOUNT_EMAIL,
+        serviceAccountEmail: saEmail,
       };
     }
 

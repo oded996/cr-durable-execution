@@ -14,7 +14,8 @@
   "dependencies": {
     "@google-cloud/functions-framework": "^5.0.0",
     "@google-cloud/tasks": "^6.2.1",
-    "express": "^5.2.1"
+    "express": "^5.2.1",
+    "gcp-metadata": "^8.1.2"
   },
   "devDependencies": {
     "@types/express": "^5.0.6",

@@ -69,15 +69,13 @@ gcloud run deploy my-service \
 ## Configuration
 
 ### Mandatory Environment Variables
-- `GOOGLE_CLOUD_PROJECT`: Your GCP Project ID.
-- `FUNCTION_REGION`: The region where your service is deployed (e.g., `us-central1`).
+- `GOOGLE_CLOUD_PROJECT`: Your GCP Project ID. Required for Cloud Tasks integration.
 
 ### Optional Environment Variables
-- `K_SERVICE_URL`: Manual override for the public URL of your Cloud Run service.
+- `K_SERVICE_URL`: Manual override for the public URL of your Cloud Run service. Automatically detected from request headers if not set.
+- `FUNCTION_REGION`: The region where your service is deployed (e.g., `us-central1`). Defaults to `us-central1`.
+- `SERVICE_ACCOUNT_EMAIL`: The service account used to sign OIDC tokens for resumption calls. **Automatically detected** on Cloud Run if not provided.
 - `DURABLE_EXECUTION_QUEUE`: The Cloud Tasks queue to use. Defaults to `default`. 
-  - To use a custom queue, create it first: `gcloud tasks queues create my-custom-queue`
-  - Then provide it during deployment: `--set-env-vars DURABLE_EXECUTION_QUEUE=my-custom-queue`
-- `SERVICE_ACCOUNT_EMAIL`: The service account used to sign OIDC tokens for resumption calls. Required if your Cloud Run service is "Internal" or "Requires Authentication".
 
 ## Requirements
 
